@@ -50,6 +50,8 @@ class HttpMethods:
                 allure.attach(json.dumps(body, indent=4, ensure_ascii=False), 'REQUEST', allure.attachment_type.JSON)
                 allure.attach(json.dumps(headers, indent=4, ensure_ascii=False), 'HEADERS', allure.attachment_type.JSON)
                 try:
+                    if response.status_code != 200:
+                        print(response.text)
                     response.raise_for_status()
                     return response
                 except requests.exceptions.HTTPError as e:
