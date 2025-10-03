@@ -12,6 +12,28 @@ from api_testing_project.services.order.payloads.payloads_order_create import Pa
 from api_testing_project.services.order.payloads.payloads_order_update_offer import PayloadsOrderUpdateOffer
 
 
+# Конфигурация тестов для разных типов КП (материалов)
+TEST_CONFIGS = {
+    'Material': {
+        'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_material,
+        'delivery_options_key': 'deliveryOptions',
+        'line_type': 'Material',
+        'quantity_increase': 5,
+        'discount_percent': 10,
+        'description': 'Material code - full flow with UpdateOffer'
+    },
+    'BTP': {
+    'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_btp,
+    'delivery_options_key': 'deliveryOptionsProd',
+    'line_type': 'BTP',
+    'quantity_increase': 1,
+    'discount_percent': 10,
+    'description': 'BTP code - full flow with UpdateOffer',
+    'passportId': '4DBB2A44-D895-468D-A51F-AE98B9B3D487',
+    'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB'
+    }
+}
+
 def _order_lines_from_simulate(sim_obj):
     """Создаем orderLines из ответа Simulate (без ODID)"""
     line = sim_obj["orderLines"][0]
@@ -21,7 +43,7 @@ def _order_lines_from_simulate(sim_obj):
         "materialCode": line.get("materialCode"),
         "quantity": qty,
         "lineNumber": line.get("lineNumber"),
-        "lineType": "Material",
+        "lineType": line.get("lineType"),
         "odid": line.get("odid"),  # пока None, обновим позже
     }
 
@@ -130,7 +152,8 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
         self.order_create_api = ApiOrderCreate()
 
     @pytest.mark.stage
-    def test_full_chain_with_update_offer(self):
+    @pytest.mark.parametrize('config_key', ['Material', 'BTP'])
+    def test_full_chain_with_update_offer(self, config_key):
         """
         Полный цикл теста с обновлением КП:
         1. Simulate - получаем информацию о материале
@@ -140,10 +163,18 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
         5. FullCommerceNew (2) - проверяем что изменения применились
         6. Order/Create - создаем заказ из обновленного КП
         """
+        # Получаем конфигурацию для текущего типа материала
+        config = TEST_CONFIGS[config_key]
+        sim_payload = config['simulate_payload']
+        delivery_key = config['delivery_options_key']
+        quantity_increase = config['quantity_increase']
+        discount_percent = config['discount_percent']
+
+        print(f"\n=== Running test for: {config['description']} ===")
+
 
         # Шаг 1 — Simulate
         with allure.step("POST /api/Order/Simulate"):
-            sim_payload = PayloadsOrderSimulate.order_simulate_add_to_cart_material
             sim_resp = self.simulate_api.post_order_simulate(sim_payload)
             print("SIMULATE RESPONSE")
             print(sim_resp)
@@ -164,6 +195,19 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             offer_payload = dict(PayloadsCreateOffer.base_valid_offer)
             offer_payload["orderLines"] = order_lines
             offer_payload.setdefault("paymentTerms", "RU00")
+
+            # Для BTP используем deliveryOptionsProd вместо deliveryOptions
+            if delivery_key == 'deliveryOptionsProd':
+                if "deliveryOptions" in offer_payload:
+                    offer_payload["deliveryOptionsProd"] = offer_payload.pop("deliveryOptions")
+
+            # Добавляем passportId и specTypeId для проектных условий (если есть в конфиге)
+            if 'passportId' in config:
+                offer_payload['passportId'] = config['passportId']
+            if 'specificationId' in config:
+                offer_payload['specificationId'] = config['specificationId']
+
+            offer_payload['userComment'] = 'ТЕСТ флоу методов - CreateOffer'
 
             offer_resp = self.create_offer_api.post_create_offer(offer_payload)
             print("CREATE OFFER RESPONSE")
@@ -207,8 +251,8 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             # Подготавливаем orderLines для обновления
             updated_order_lines = _prepare_order_lines_for_update(
                 order_lines,
-                quantity_increase=5,
-                discount_percent=10
+                quantity_increase=quantity_increase,
+                discount_percent=discount_percent
             )
 
             # Извлекаем данные из FullCommerceNew
@@ -231,8 +275,11 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             update_payload["source"] = offer_payload.get("source", "CRM")
             update_payload["exchangeRateType"] = offer_payload.get("exchangeRateType", "CBR")
 
-            # Копируем deliveryOptions если есть
-            if "deliveryOptions" in offer_payload:
+            # Копируем правильный deliveryOptions в зависимости от типа материала
+            if delivery_key in offer_payload:
+                update_payload[delivery_key] = offer_payload[delivery_key]
+            elif "deliveryOptions" in offer_payload:
+                # Fallback на стандартный deliveryOptions если специфичного нет
                 update_payload["deliveryOptions"] = offer_payload["deliveryOptions"]
 
             # Формируем headers с userId
@@ -276,7 +323,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
 
             # Проверка 1: Количество должно увеличиться на 5
             updated_quantity = first_detail.get("quantity") or first_detail.get("qty")
-            expected_quantity = original_quantity + 5
+            expected_quantity = original_quantity + quantity_increase
             print(f"Проверка количества: ожидаем {expected_quantity}, получили {updated_quantity}")
             assert updated_quantity == expected_quantity, \
                 f"Количество не обновилось! Ожидали {expected_quantity}, получили {updated_quantity}"
@@ -309,6 +356,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             order_payload["orderLines"] = order_lines_for_create
             order_payload["offerId"] = offer_id
             order_payload.setdefault("paymentTerms", "RU00")
+            order_payload['userComment'] = 'ТЕСТ флоу методов - Order/Create'
 
             print("ORDER CREATE PAYLOAD")
             print(order_payload)
