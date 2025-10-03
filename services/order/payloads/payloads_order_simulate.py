@@ -318,3 +318,24 @@ class PayloadsOrderSimulate:
         "exchangeRateType": null,
         "returnAutoPrice": false
     }
+
+    # Запрос на добавление в корзину BTP (стандартный запрос, без спец. условий)
+    order_simulate_add_to_cart_btp = {
+        "debtorAccount": "0014403847",
+        "materials": [
+            {
+                "materialCode": "N2202248348-1",
+                "quantity": 2,
+                "lineNumber": 0,
+                "odid": null
+            }
+        ],
+        "paymentTerms": "RU00",
+        "personId": "920bb836-8ee4-4571-b5bd-94bd28c29d32",
+        "offerId": null,
+        "returnEndClientDiscount": false,
+        "currency": "RUB",
+        "currencyDate": null,
+        "exchangeRateType": null,
+        "returnAutoPrice": false
+    }
