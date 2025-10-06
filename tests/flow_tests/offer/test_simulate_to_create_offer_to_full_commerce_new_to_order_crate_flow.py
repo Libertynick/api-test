@@ -29,9 +29,19 @@ TEST_CONFIGS = {
     'quantity_increase': 1,
     'discount_percent': 10,
     'description': 'BTP code - full flow with UpdateOffer',
+    # Поля для проектного условия
+    'personId': '1c26afd2-1d97-4b7f-92fb-dd21ed412eea',
     'passportId': '4DBB2A44-D895-468D-A51F-AE98B9B3D487',
-    'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB'
-    }
+    'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB',
+    'specificationId': '29CDC69A-1CBA-47CF-9F93-8DECBDAF3D9A',
+    'purchaseType': 'C8EC0EE8-FB5D-4AE1-A664-B2C46A914E46',
+    'finalBuyerId': 'daa47b0f-8c66-42f9-a5df-44fae4ff18e8',
+    'customerId': 'acb8f425-c3b6-4b38-9f34-1e7fbfd53fa9',
+    'exchangeRateType': 'YRU',
+    'currencySpecialFixation': True,
+    'setContractDiscounts': True,
+    'isDraft': True
+}
 }
 
 def _order_lines_from_simulate(sim_obj):
@@ -201,13 +211,21 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                 if "deliveryOptions" in offer_payload:
                     offer_payload["deliveryOptionsProd"] = offer_payload.pop("deliveryOptions")
 
-            # Добавляем passportId и specTypeId для проектных условий (если есть в конфиге)
-            if 'passportId' in config:
-                offer_payload['passportId'] = config['passportId']
-            if 'specificationId' in config:
-                offer_payload['specificationId'] = config['specificationId']
+            # Добавляем специфичные поля для типа материала из конфига
+            # Исключаем служебные поля конфига
+            exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
+                              'quantity_increase', 'discount_percent', 'description'}
+
+            for key, value in config.items():
+                if key not in exclude_fields:
+                    offer_payload[key] = value
 
             offer_payload['userComment'] = 'ТЕСТ флоу методов - CreateOffer'
+
+            print("\n" + "=" * 80)
+            print("CREATE OFFER PAYLOAD (что отправляем):")
+            print(offer_payload)
+            print("=" * 80 + "\n")
 
             offer_resp = self.create_offer_api.post_create_offer(offer_payload)
             print("CREATE OFFER RESPONSE")
@@ -279,8 +297,13 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             if delivery_key in offer_payload:
                 update_payload[delivery_key] = offer_payload[delivery_key]
             elif "deliveryOptions" in offer_payload:
-                # Fallback на стандартный deliveryOptions если специфичного нет
                 update_payload["deliveryOptions"] = offer_payload["deliveryOptions"]
+
+            # Копируем проектные поля из offer_payload в update_payload
+            for field in ['passportId', 'specTypeId', 'specificationId', 'purchaseType',
+                          'finalBuyerId', 'customerId', 'currencySpecialFixation', 'setContractDiscounts']:
+                if field in offer_payload:
+                    update_payload[field] = offer_payload[field]
 
             # Формируем headers с userId
             headers = {
@@ -329,7 +352,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                 f"Количество не обновилось! Ожидали {expected_quantity}, получили {updated_quantity}"
 
             # Проверка 2: Скидка дистрибьютора должна быть 10%
-            discount_distr = first_detail.get("discount") or first_detail.get("discountPercent")
+            discount_distr = first_detail.get("clientDiscountPercent") or first_detail.get("discountPercent")
             print(f"Проверка discount: ожидаем 10%, получили {discount_distr}%")
             assert discount_distr == 10, \
                 f"discount не обновилась! Ожидали 10%, получили {discount_distr}%"
