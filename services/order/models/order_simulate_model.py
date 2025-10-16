@@ -272,6 +272,7 @@ class OrderLine(BaseModel):
     description: Optional[str] = Field(description='Описание материала')
     description_extended: Optional[str] = Field(description='Расширенное описание материала')
     sales_price: float = Field(description='Цена из каталога за штуку без НДС')
+    warranty_price: float = Field(description='Цена гарантии.')
     width: float = Field(deprecated=True)
     weight: float = Field(description='Вес одной штуки')
     ordered_quantity: int = Field(

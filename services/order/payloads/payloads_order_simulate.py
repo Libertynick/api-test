@@ -321,7 +321,7 @@ class PayloadsOrderSimulate:
 
     # Запрос на добавление в корзину BTP (стандартный запрос, без спец. условий)
     order_simulate_add_to_cart_btp = {
-        "debtorAccount": "0014403847",
+        "debtorAccount": "RT25-7705238125-HE",
         "materials": [
             {
                 "materialCode": "N2202248348-1",
@@ -338,4 +338,34 @@ class PayloadsOrderSimulate:
         "currencyDate": null,
         "exchangeRateType": null,
         "returnAutoPrice": false
+    }
+
+    # Запрос на добавление в корзину Industrial (HEX - теплообменник) с проектным условием
+    order_simulate_add_to_cart_industrial = {
+        "debtorAccount": "31/25-CH",
+        "materials": [
+            {
+                "materialCode": "w202102975",
+                "quantity": 1,
+                "lineNumber": 1,
+                "usePromoCurrency": False,
+                "useSpecialPrice": True,
+                "odid": None
+            }
+        ],
+        "paymentTerms": "RU00",
+        "personId": "b898f86a-6070-451b-9a14-47ba949c8cb8",
+        "offerId": None,
+        "returnEndClientDiscount": False,
+        "currency": "RUB",
+        "currencyDate": "2025-10-15T00:00:00",
+        "exchangeRateType": "YRU",
+        "returnAutoPrice": False,
+        "surchargesPayment": "0",
+        "surchargesConversion": 0,
+        "returnKitDisconts": True,
+        "returnVolumeDisconts": True,
+        "returnAdditionalBTP": False,
+        "extendedWarranty": {"type": "0"},
+        "isEstimateOffer": False
     }

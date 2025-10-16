@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 from api_testing_project.services.base_api import BaseApi
 from api_testing_project.services.order.models.order_simulate_model import OrderSimulateModel, OrderLine
@@ -7,9 +8,9 @@ from api_testing_project.services.order.models.order_simulate_model import Order
 class ApiOrderSimulate(BaseApi):
     """API Order/Simulate"""
 
-    def post_order_simulate(self, data: json):
+    def post_order_simulate(self, data: json, headers=None) -> dict:
         post_url = self.endpoints.post_order_simulate
-        self.response_data = self.http_methods.post(post_url, body=data).json()
+        self.response_data = self.http_methods.post(post_url, body=data, headers=headers).json()
         return self.response_data
 
     @staticmethod
@@ -30,6 +31,11 @@ class ApiOrderSimulate(BaseApi):
     def get_order_lines(self) -> OrderLine:
         """Получение объекта orderLines"""
         order_lines = self.get_objects_from_response(OrderSimulateModel)[0].order_lines[0]
+        return order_lines
+
+    def get_list_order_lines(self) -> List[OrderLine]:
+        """Получение списка объекта orderLines"""
+        order_lines = self.get_objects_from_response(OrderSimulateModel)[0].order_lines
         return order_lines
 
     def check_field_material_code_in_order_lines(self, expected_material_code: str):

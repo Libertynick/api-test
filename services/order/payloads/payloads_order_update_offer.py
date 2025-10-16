@@ -9,7 +9,7 @@ class PayloadsOrderUpdateOffer:
         "source": "CRM",
         "currency": "RUB",
         "exchangeRateType": "CBR",
-        "debtorAccount": "0014403847",
+        "debtorAccount": "RT25-7705238125-HE",
         "personId": "920bb836-8ee4-4571-b5bd-94bd28c29d32",
         "paymentTerms": "RU00",
         "offerId": null,
