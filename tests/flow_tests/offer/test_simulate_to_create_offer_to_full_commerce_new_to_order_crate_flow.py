@@ -575,6 +575,14 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             # Обновляем orderLines с правильными ODID
             order_lines = _update_order_lines_with_odid(order_lines, full_resp)
             print(f"Updated order lines with ODID: {order_lines}")
+            details = full_resp.get("objects", [{}])[0].get("details", [])
+            original_seller_id = None
+            original_contractor_name = None
+            if details:
+                original_seller_id = details[0].get("organization", {}).get("contractorId")
+                original_contractor_name = details[0].get("organization", {}).get("contractorName")
+                print(f"🔍 Original Seller ID: {original_seller_id}")
+                print(f"🔍 Original Contractor Name: {original_contractor_name}")
 
         # Шаг 4 — UpdateOffer (обновляем КП: quantity +1, скидки, isDraft → False)
         with allure.step("POST /api/Order/UpdateOffer (quantity +1, discounts, isDraft → False)"):
@@ -599,6 +607,11 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                 update_payload["orderLines"] = updated_order_lines  # Обновляем с новым quantity и скидкой
                 update_payload["isDraft"] = False  # Меняем на False
                 update_payload["userComment"] = "ТЕСТ флоу методов HR - UpdateOffer"
+
+                # ДОБАВЛЯЕМ ЭТУ СТРОКУ - сохраняем оригинального продавца
+                if original_seller_id:
+                    update_payload["sellerId"] = original_seller_id
+                    print(f"Добавили sellerId в UpdateOffer: {original_seller_id}")
             else:
                 # Для Industrial как было
                 update_payload = dict(PayloadsOrderUpdateOffer.base_update_offer)
@@ -656,7 +669,19 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                     f"Скидка конечного клиента не обновилась для {material_code}. " \
                     f"Ожидали {discount_percent}%, получили {end_client_discount}%"
 
-            print(f" Все изменения успешно применились!")
+                # ДОБАВЛЯЕМ ПРОВЕРКУ ПРОДАВЦА (только для HR)
+                if config_key == 'HR' and original_seller_id:
+                    current_seller_id = detail.get("organization", {}).get("contractorId")
+                    current_contractor_name = detail.get("organization", {}).get("contractorName")
+                    print(f"  Продавец после UpdateOffer: {current_contractor_name} ({current_seller_id})")
+
+                    assert current_seller_id == original_seller_id, \
+                        f"Продавец изменился! Было: {original_contractor_name} ({original_seller_id}), " \
+                        f"Стало: {current_contractor_name} ({current_seller_id})"
+
+                    print(f"Продавец остался прежним: {current_contractor_name}")
+
+                print(f"✓ Все изменения успешно применились!")
 
             # Проверяем статус КП
             status_display = full_resp_after["objects"][0]["data"][0].get("statusDisplay")
