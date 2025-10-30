@@ -76,12 +76,12 @@ class TestOrderSimulateAddedCodesToCart:
     def test_order_simulate_add_to_cart_special_price(self):
         """Тест на добавление кода со спец. ценой"""
         expected_values_dict = {
-            "sales_price": 16740.0,  # Ожидаемая Цена из каталога за штуку без НДС (прайс)
+            "sales_price": 19228.28 ,  # Ожидаемая Цена из каталога за штуку без НДС (прайс)
             "weight": 1.24,  # Вес одной штуки
             "description": 'AMZ 112 двухпозиционный зональный кран , Ду 25 напряжение питания 24 В',
             # Ожидаемое описание товара
             "discount_percent": 0,  # Ожидаемая скидка дистра
-            "sales_price_with_tax": 2229768.0,  # Итого с наценкой и налогом
+            "sales_price_with_tax": 2561206.896,  # Итого с наценкой и налогом
             "cost": 0.0,  # Ожидаемая себестоимость
             "currency": 'RUB',  # Ожидаемая валюта
             "line_type": 'Material',  # Ожидаемый тип

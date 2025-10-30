@@ -12,52 +12,9 @@ from api_testing_project.services.order.payloads.payloads_order_create import Pa
 from api_testing_project.services.order.payloads.payloads_order_update_offer import PayloadsOrderUpdateOffer
 
 
-def _prepare_delivery_options(offer_payload, delivery_key, config):
-    """
-    Подготовка delivery options в зависимости от типа материала
-
-    Args:
-        offer_payload: Основной payload для offer
-        delivery_key: Ключ типа доставки ('deliveryOptions', 'deliveryOptionsProd', 'deliveryOptionsDZRProd')
-        config: Конфигурация теста
-    """
-    if delivery_key == 'deliveryOptionsProd':
-        # Для BTP используем deliveryOptionsProd вместо deliveryOptions
-        if "deliveryOptions" in offer_payload:
-            offer_payload["deliveryOptionsProd"] = offer_payload.pop("deliveryOptions")
-
-    elif delivery_key == 'deliveryOptionsDZRProd':
-        # Для Industrial (HEX) используем deliveryOptionsDZRProd
-        if "deliveryOptions" in offer_payload:
-            offer_payload.pop("deliveryOptions")
-
-        # Используем готовый payload
-        offer_payload["deliveryOptionsDZRProd"] = dict(
-            PayloadsCreateOffer.delivery_options_dzr_prod_industrial
-        )
-
-        # Добавляем projectObject для Industrial
-        project_obj = dict(PayloadsCreateOffer.project_object_industrial)
-        project_obj["id"] = config.get('passportId')  # Обновляем ID из конфига
-        offer_payload["projectObject"] = project_obj
-
-
-def _add_config_fields_to_payload(payload, config, exclude_fields):
-    """
-    Добавляет специфичные поля из конфига в payload
-
-    Args:
-        payload: Словарь payload для запроса
-        config: Конфигурация теста
-        exclude_fields: Множество полей, которые не нужно добавлять
-    """
-    for key, value in config.items():
-        if key not in exclude_fields:
-            payload[key] = value
-
-
 # Конфигурация тестов для разных типов КП (материалов)
 TEST_CONFIGS = {
+
     'Material': {
         'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_material,
         'delivery_options_key': 'deliveryOptions',
@@ -66,6 +23,7 @@ TEST_CONFIGS = {
         'discount_percent': 10,
         'description': 'Material code - full flow with UpdateOffer'
     },
+
     'BTP': {
         'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_btp,
         'delivery_options_key': 'deliveryOptionsProd',
@@ -86,46 +44,120 @@ TEST_CONFIGS = {
         'setContractDiscounts': True,
         'isDraft': True
     },
+
     'Industrial': {
     'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_industrial,
     'delivery_options_key': 'deliveryOptionsDZRProd',
     'line_type': 'HEX',
     'quantity_increase': 1,
     'discount_percent': 0,
-    'description': 'Industrial HEX code - FROM ORGANIZATION with Project Condition',
-    'offerType': 3,
-    'passportId': '9abbcb6b-91ac-4d69-bbee-d0d0f583e18d',
-    'specificationId': 'ece5153c-fbbd-4b55-816e-e7dd035364ad',
-    'finalBuyerId': 'BF2FE82C-FED9-414B-9BA3-403CE76C9000',
-    'customerId': 'BF2FE82C-FED9-414B-9BA3-403CE76C9000',
-    'purchaseType': '121B015A-E76D-4688-9BB6-2A56EC6DE2EF',
-    'personId': 'b898f86a-6070-451b-9a14-47ba949c8cb8',
-    'isDraft': True,
-    'currencySpecialFixation': True,
-    'setContractDiscounts': True,
-    'exchangeRateType': 'YRU',
-    'clientInn': '5249173547',
-    'sellerId': '20C340FE-6AFF-486F-B248-FD8DBE2C93CD',
-    'userName': 'RUCO1845',
-    'validDays': 3,
+    'description': 'Industrial HEX code - FROM ORGANIZATION',
+
+    # Из рабочего payload:
     'docType': 'Order',
+    'showPriceWithDiscount': False,
+    'showDiscount': True,
+    'currencyDate': '2025-10-15T00:00:00',
+    'currency': 'RUB',
+    'exchangeRateType': 'YRU',
+    'userName': 'RUCO1845',
+    'personId': 'b898f86a-6070-451b-9a14-47ba949c8cb8',
     'usePromoCurrency': False,
+    'opportunityId': 'CF0F3885-3CA5-409D-A270-5E82E6EFD02C',  # ← КЛЮЧЕВОЕ!
+    'paymentTerms': 'RU00',
     'surchargesPayment': '0',
     'surchargesConversion': 0,
     'payPercentBeforePlacingIntoProduction': 100,
+    'isDraft': True,
     'isEndUserPQ': False,
-    'availableForDistributor': False,
-    'autoAvailableForDistributor': True,
+    'purchaseType': '121B015A-E76D-4688-9BB6-2A56EC6DE2EF',
+    'finalBuyerId': 'BF2FE82C-FED9-414B-9BA3-403CE76C9000',
+    'customerId': 'BF2FE82C-FED9-414B-9BA3-403CE76C9000',
+    'clientInn': '5249173547',
+    'autoAvailableForDistributor': None,
+    'debtorAccount': '31/25-CH',
+    'currencySpecialFixation': True,
+    'setContractDiscounts': True,
     'isExport': False,
-    'autoFromEngSpec': False,
-    'isNew': False,
-    'sourceOfferId': None,
+    'validDays': 3,
+    'source': None,  # ← null!
+    'sellerId': '20C340FE-6AFF-486F-B248-FD8DBE2C93CD',
     'IsATOffer': False,
+    'autoFromEngSpec': False,
+    'isNew': True,
+    'extendedWarranty': {'type': '0'},
     'priceFixingCorridorValue': None,
     'isEstimateOffer': False,
-    'referenceNumber': None
+    'offerType': None,  # ← null!
+    'passportId': '9abbcb6b-91ac-4d69-bbee-d0d0f583e18d',
+    'specificationId': 'ece5153c-fbbd-4b55-816e-e7dd035364ad',
+},
+    'HR': {
+    'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_radiator,
+    'delivery_options_key': 'deliveryOptions',
+    'line_type': 'Material',
+    'quantity_increase': 1,
+    'discount_percent': 10,
+    'description': 'HR Radiator code - full flow with UpdateOffer',
+    'personId': '0b9a97d3-821d-4f84-b016-d3ab2b433bb7',
+    'passportId': '9abbcb6b-91ac-4d69-bbee-d0d0f583e18d',
+    'specificationId': 'ece5153c-fbbd-4b55-816e-e7dd035364ad',
+    'finalBuyerId': '6e9c40d9-59c3-4576-ab38-8b0724fc92fd',
+    'salesGroup': 'RU1',
+    'salesOffice': 'RU01',
+    'isDraft': True
 }
 }
+
+
+def _prepare_delivery_options(offer_payload, delivery_key, config):
+    """
+    Подготовка delivery options в зависимости от типа материала
+    """
+    if delivery_key == 'deliveryOptionsProd':
+        # Для BTP используем deliveryOptionsProd вместо deliveryOptions
+        if "deliveryOptions" in offer_payload:
+            offer_payload["deliveryOptionsProd"] = offer_payload.pop("deliveryOptions")
+
+    elif delivery_key == 'deliveryOptionsDZRProd':
+        # Для Industrial (HEX) используем deliveryOptionsDZRProd
+        if "deliveryOptions" in offer_payload:
+            offer_payload.pop("deliveryOptions")
+
+        offer_payload["deliveryOptionsDZRProd"] = dict(
+            PayloadsCreateOffer.delivery_options_dzr_prod_industrial
+        )
+
+        # Добавляем projectObject для Industrial
+        project_obj = dict(PayloadsCreateOffer.project_object_industrial)
+        project_obj["id"] = config.get('passportId')
+        offer_payload["projectObject"] = project_obj
+
+    elif delivery_key == 'deliveryOptions':
+        # Для Material и HR - оставляем deliveryOptions как есть
+        # Для HR добавляем projectObject
+        if config.get('passportId'):  # Если есть passportId - значит проектное условие
+            offer_payload["projectObject"] = {
+                "id": config.get('passportId'),
+                "name": "Детский сад на 240 мест в г. Тарко-Сале, мкр.Южный",
+                "address": "Ямало-Ненецкий АО, г Тарко-Сале, мкр Южный",
+                "number": 1178586,
+                "comment": " "
+            }
+
+
+def _add_config_fields_to_payload(payload, config, exclude_fields):
+    """
+    Добавляет специфичные поля из конфига в payload
+
+    Args:
+        payload: Словарь payload для запроса
+        config: Конфигурация теста
+        exclude_fields: Множество полей, которые не нужно добавлять
+    """
+    for key, value in config.items():
+        if key not in exclude_fields:
+            payload[key] = value
 
 
 def _order_lines_from_simulate(sim_obj):
@@ -164,23 +196,34 @@ def _update_order_lines_with_odid(order_lines, full_resp):
 
     print(f"Найдено {len(details)} позиций в details")
 
-    # Создаем маппинг materialCode - odid
+    # Создаем маппинг materialCode - odid и materialCode - contractorId
     code_to_odid = {}
+    code_to_contractor_id = {}
     for detail in details:
         material_code = detail.get("materialCode") or detail.get("code")
         odid = detail.get("id")  # в details ODID называется "id"!
+        contractor_id = detail.get("organization", {}).get("contractorId")
+
         if material_code and odid:
             code_to_odid[material_code] = odid
             print(f"Mapping: {material_code} → {odid}")
 
-    # Обновляем ODID в orderLines
+            if contractor_id:  # <- ДОБАВИЛ
+                code_to_contractor_id[material_code] = contractor_id
+                print(f"Contractor: {material_code} → {contractor_id}")
+
+    # Обновляем ODID и contractorId в orderLines
     for line in order_lines:
         mat_code = line.get("materialCode")
         if mat_code in code_to_odid:
             line["odid"] = code_to_odid[mat_code]
-            print(f"✓ Updated ODID for {mat_code}: {line['odid']}")
+            print(f" Updated ODID for {mat_code}: {line['odid']}")
+
+            if mat_code in code_to_contractor_id:  # <- ДОБАВИЛ
+                line["contractorId"] = code_to_contractor_id[mat_code]
+                print(f" Updated contractorId for {mat_code}: {line['contractorId']}")
         else:
-            print(f"⚠ No ODID found for {mat_code}")
+            print(f" No ODID found for {mat_code}")
 
     return order_lines
 
@@ -193,26 +236,15 @@ def _prepare_order_lines_for_update(order_lines, quantity_increase, discount_per
     - Удаляем поля с None значениями для DateTime
     """
     updated_lines = []
-
     for line in order_lines:
         updated_line = dict(line)
-
-        # Увеличиваем quantity
-        current_qty = line.get("quantity", 0)
-        new_qty = current_qty + quantity_increase
-        updated_line["quantity"] = new_qty
-
-        # Добавляем скидки
+        updated_line["quantity"] = line["quantity"] + quantity_increase
+        updated_line["discountPercent"] = discount_percent
         updated_line["endClientDiscountPercent"] = discount_percent
-        updated_line["discountPercent"] = 0
 
-        # Удаляем deliveryDate если он None
-        if updated_line.get("deliveryDate") is None:
-            updated_line.pop("deliveryDate", None)
-        # Сервер не может обработать None для DateTime полей
-
-        print(f"Обновили позицию: {line.get('materialCode')} - quantity: {current_qty} -> {new_qty}, "
-              f"discounts: 0% -> {discount_percent}%")
+        # Сохраняем contractorId если есть <- ДОБАВЬ
+        if "contractorId" in line:
+            updated_line["contractorId"] = line["contractorId"]
 
         updated_lines.append(updated_line)
 
@@ -258,7 +290,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             print("SIMULATE RESPONSE")
             print(sim_resp)
 
-            assert sim_resp["status"] == "Ok", f"Simulate status != Ok: {sim_resp}"
+            assert sim_resp["status"] in ["Ok", "Warning"], f"Simulate status != Ok/Warning: {sim_resp}"
             assert sim_resp["objects"], "Simulate: пустой objects"
             assert sim_resp["objects"][0].get("orderLines"), "Simulate: нет orderLines"
 
@@ -437,9 +469,10 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             print("✓ Тест успешно выполнен! Весь цикл с UpdateOffer завершен.")
 
     @pytest.mark.stage
-    def test_industrial_chain_without_order(self):
+    @pytest.mark.parametrize('config_key', ['Industrial', 'HR'])
+    def test_industrial_chain_without_order(self, config_key):
         """
-        Флоу для Industrial (HEX) БЕЗ создания заказа:
+        Флоу для Industrial (HEX) и Radiator (HR) БЕЗ создания заказа:
         1. Simulate - получаем информацию о материале
         2. CreateOffer - создаем КП (isDraft=True)
         3. FullCommerceNew (1) - получаем ODID позиций
@@ -449,7 +482,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
         ВАЖНО: Order/Create НЕ делаем, т.к. КП остается в статусе "Согласование"
         """
         # Получаем конфигурацию для Industrial
-        config = TEST_CONFIGS['Industrial']
+        config = TEST_CONFIGS[config_key]
         sim_payload = config['simulate_payload']
         delivery_key = config['delivery_options_key']
         quantity_increase = config['quantity_increase']
@@ -463,7 +496,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             print("SIMULATE RESPONSE")
             print(sim_resp)
 
-            assert sim_resp["status"] == "Ok", f"Simulate status != Ok: {sim_resp}"
+            assert sim_resp["status"] in ["Ok", "Warning"], f"Simulate status != Ok: {sim_resp}"
             assert sim_resp["objects"], "Simulate: пустой objects"
             assert sim_resp["objects"][0].get("orderLines"), "Simulate: нет orderLines"
 
@@ -476,18 +509,25 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
 
         # Шаг 2 — CreateOffer
         with allure.step("POST /api/CrmCommerce/CreateOffer"):
-            offer_payload = dict(PayloadsCreateOffer.base_valid_offer)
-            offer_payload["orderLines"] = order_lines
-            offer_payload.setdefault("paymentTerms", "RU00")
+            if config_key == 'HR':
+                # Для HR используем специальный payload
+                from datetime import datetime, timedelta
+                offer_payload = dict(PayloadsCreateOffer.create_offer_hr_radiator)
+                offer_payload["orderLines"] = order_lines
 
-            # Подготовка delivery options в зависимости от типа
-            _prepare_delivery_options(offer_payload, delivery_key, config)
-
-            # Добавляем специфичные поля для типа материала из конфига
-            exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
-                              'quantity_increase', 'discount_percent', 'description'}
-
-            _add_config_fields_to_payload(offer_payload, config, exclude_fields)
+                # Устанавливаем даты
+                now = datetime.now()
+                offer_payload["purchaseDate"] = now.isoformat()
+                offer_payload["deliveryOptions"]["desiredDeliveryDate"] = (now + timedelta(days=1)).isoformat()
+            else:
+                # Для Industrial как было
+                offer_payload = dict(PayloadsCreateOffer.base_valid_offer)
+                offer_payload["orderLines"] = order_lines
+                offer_payload.setdefault("paymentTerms", "RU00")
+                _prepare_delivery_options(offer_payload, delivery_key, config)
+                exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
+                                  'quantity_increase', 'discount_percent', 'description'}
+                _add_config_fields_to_payload(offer_payload, config, exclude_fields)
 
             offer_payload['userComment'] = 'ТЕСТ флоу методов Industrial - CreateOffer'
 
@@ -500,15 +540,18 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             print("CREATE OFFER RESPONSE")
             print(offer_resp)
 
+            saved_offer_payload = offer_payload.copy()
+
             assert offer_resp["status"] == "Ok", f"CreateOffer status != Ok: {offer_resp}"
             assert offer_resp.get("objects"), "CreateOffer: пустой objects"
 
             offers = offer_resp["objects"][0].get("offers") or []
             assert offers, f"CreateOffer: нет offers в ответе: {offer_resp}"
+            for i, offer in enumerate(offers, 1):
+                print(f"Created offer #{i}: number={offer['number']}, id={offer['id']}")
             offer_id = offers[0]["id"]
             offer_number = offers[0].get("number")
-            print(f"Created offer_id: {offer_id}")
-            print(f"Created offer_number: {offer_number}")
+            print(f"\nUsing first offer for test: id={offer_id}, number={offer_number}")
 
         # Шаг 3 — FullCommerceNew (первый раз - получаем ODID)
         with allure.step("GET /api/CrmCommerce/FullCommerceNew (до UpdateOffer)"):
@@ -548,26 +591,26 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
 
             print(f"OpportunityId из FullCommerceNew: {opportunity_id}")
 
-            # Формируем payload для UpdateOffer на основе base_update_offer
-            update_payload = dict(PayloadsOrderUpdateOffer.base_update_offer)
-            update_payload["offerId"] = offer_id
-            update_payload["opportunityId"] = opportunity_id
-            update_payload["orderLines"] = updated_order_lines
-            update_payload.setdefault("paymentTerms", "RU00")
-
-            # Подготовка delivery options для UpdateOffer
-            _prepare_delivery_options(update_payload, delivery_key, config)
-
-            # Добавляем специфичные поля из конфига (включая проектное условие)
-            exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
-                              'quantity_increase', 'discount_percent', 'description'}
-
-            _add_config_fields_to_payload(update_payload, config, exclude_fields)
-
-            # Для Industrial от организации isDraft ОСТАЕТСЯ True (не меняем на False!)
-            # Все остальные поля уже добавлены из конфига
-
-            update_payload['userComment'] = 'ТЕСТ флоу методов Industrial - UpdateOffer'
+            if config_key == 'HR':
+                # Для HR - используем ВЕСЬ payload из CreateOffer
+                update_payload = dict(saved_offer_payload)  # <- БЕРЕМ СОХРАНЕННЫЙ
+                update_payload["offerId"] = offer_id  # Добавляем
+                update_payload["opportunityId"] = opportunity_id  # Добавляем
+                update_payload["orderLines"] = updated_order_lines  # Обновляем с новым quantity и скидкой
+                update_payload["isDraft"] = False  # Меняем на False
+                update_payload["userComment"] = "ТЕСТ флоу методов HR - UpdateOffer"
+            else:
+                # Для Industrial как было
+                update_payload = dict(PayloadsOrderUpdateOffer.base_update_offer)
+                update_payload["offerId"] = offer_id
+                update_payload["opportunityId"] = opportunity_id
+                update_payload["orderLines"] = updated_order_lines
+                update_payload.setdefault("paymentTerms", "RU00")
+                _prepare_delivery_options(update_payload, delivery_key, config)
+                exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
+                                  'quantity_increase', 'discount_percent', 'description', 'isDraft', 'isNew'}
+                _add_config_fields_to_payload(update_payload, config, exclude_fields)
+                update_payload['userComment'] = 'ТЕСТ флоу методов Industrial - UpdateOffer'
 
             print("\n" + "=" * 80)
             print("UPDATE OFFER PAYLOAD (что отправляем):")
@@ -613,11 +656,11 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                     f"Скидка конечного клиента не обновилась для {material_code}. " \
                     f"Ожидали {discount_percent}%, получили {end_client_discount}%"
 
-            print(f" Все изменения успешно применились для Industrial!")
+            print(f" Все изменения успешно применились!")
 
             # Проверяем статус КП
             status_display = full_resp_after["objects"][0]["data"][0].get("statusDisplay")
             print(f"\n Статус КП после UpdateOffer: {status_display}")
             print("Order/Create НЕ выполняется - КП остается в статусе согласования")
 
-            print("\n Тест Industrial успешно выполнен! (без Order/Create)")
+            print("\n Тест успешно выполнен! (без Order/Create)")

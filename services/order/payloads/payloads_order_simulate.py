@@ -369,3 +369,24 @@ class PayloadsOrderSimulate:
         "extendedWarranty": {"type": "0"},
         "isEstimateOffer": False
     }
+
+    # Запрос на добавление в корзину радиатора HR
+    order_simulate_add_to_cart_radiator = {
+        "debtorAccount": "RT25-7705238125-HE",
+        "materials": [
+            {
+                "materialCode": "HR00045",
+                "quantity": 2,
+                "lineNumber": 0,
+                "odid": null
+            }
+        ],
+        "paymentTerms": "RU00",
+        "personId": "920bb836-8ee4-4571-b5bd-94bd28c29d32",
+        "offerId": null,
+        "returnEndClientDiscount": false,
+        "currency": "RUB",
+        "currencyDate": null,
+        "exchangeRateType": null,
+        "returnAutoPrice": false
+    }

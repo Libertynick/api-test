@@ -67,3 +67,20 @@ class ApiCreateOffer(BaseApi):
         article = [line.code for line in lines]
 
         return article
+
+    def post_create_offer_with_user_id(self, data: json, user_id: str = None, headers=None):
+        """
+        Запрос Post на /api/CrmCommerce/CreateOffer с userId в query параметрах
+        """
+        post_url = Endpoints.post_create_offer
+
+        # Если передан userId, добавляем его в URL как query параметр
+        if user_id:
+            post_url = f"{post_url}?userId={user_id}"
+
+        # КРИТИЧЕСКИ ВАЖНЫЙ DEBUG:
+        print(f"\n🔍 DEBUG: Финальный URL = {post_url}")
+        print(f"🔍 DEBUG: userId передан = {user_id}")
+
+        self.response_data = self.http_methods.post(url=post_url, body=data, headers=headers).json()
+        return self.response_data
