@@ -466,7 +466,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             assert order_resp["status"] == "Ok", f"Order/Create status != Ok: {order_resp}"
             assert order_resp.get("objects"), "Order/Create: пустой objects"
 
-            print("✓ Тест успешно выполнен! Весь цикл с UpdateOffer завершен.")
+            print("Тест успешно выполнен! Весь цикл с UpdateOffer завершен.")
 
     @pytest.mark.stage
     @pytest.mark.parametrize('config_key', ['Industrial', 'HR'])
@@ -581,8 +581,8 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             if details:
                 original_seller_id = details[0].get("organization", {}).get("contractorId")
                 original_contractor_name = details[0].get("organization", {}).get("contractorName")
-                print(f"🔍 Original Seller ID: {original_seller_id}")
-                print(f"🔍 Original Contractor Name: {original_contractor_name}")
+                print(f"Original Seller ID: {original_seller_id}")
+                print(f"Original Contractor Name: {original_contractor_name}")
 
         # Шаг 4 — UpdateOffer (обновляем КП: quantity +1, скидки, isDraft → False)
         with allure.step("POST /api/Order/UpdateOffer (quantity +1, discounts, isDraft → False)"):
