@@ -390,3 +390,33 @@ class PayloadsOrderSimulate:
         "exchangeRateType": null,
         "returnAutoPrice": false
     }
+
+    # Запрос на добавление в корзину теплообменника Клевер Хит (HEX с промовалютой)
+    order_simulate_add_to_cart_clover_hit = {
+        "debtorAccount": "RT25-7705238125-HE",
+        "materials": [
+            {
+                "materialCode": "w003013006",
+                "quantity": 1,
+                "lineNumber": 1,
+                "usePromoCurrency": true,
+                "useSpecialPrice": true,
+                "odid": null
+            }
+        ],
+        "paymentTerms": "RU00",
+        "personId": "f8eaae4a-1309-4b24-95e8-3a092dc30067",
+        "offerId": null,
+        "currency": "RUB",
+        "currencyDate": "2025-11-05T00:00:00",
+        "exchangeRateType": "YRU",
+        "returnAutoPrice": false,
+        "surchargesPayment": "0",
+        "surchargesConversion": 0,
+        "specificationId": "0e59258b-b7aa-434f-877e-efd37be5930f",
+        "returnKitDisconts": true,
+        "returnVolumeDisconts": true,
+        "returnAdditionalBTP": false,
+        "extendedWarranty": {"type": "0"},
+        "isEstimateOffer": false
+    }

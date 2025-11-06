@@ -105,7 +105,77 @@ TEST_CONFIGS = {
         'salesGroup': 'RU1',
         'salesOffice': 'RU01',
         'isDraft': True
+    },
+'CleverHit': {
+    'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_clover_hit,
+    'delivery_options_key': 'deliveryOptionsDZRProd',
+    'line_type': 'HEX',
+    'quantity_increase': 1,
+    'discount_percent': 55,
+    'description': 'Clever Hit HEX code - with promoCurrency and userName',
+
+    # Основные поля
+    'docType': 'Order',
+    'showPriceWithDiscount': True,
+    'showDiscount': False,
+    'currencyDate': '2025-11-05T00:00:00',
+    'currency': 'RUB',
+    'exchangeRateType': 'YRU',
+    'userName': 'RIDANCORP\\RUCO3670',
+    'personId': 'f8eaae4a-1309-4b24-95e8-3a092dc30067',
+    'usePromoCurrency': True,
+    'passportId': '8BE18628-2E23-4650-A438-482484E0B64D',
+    'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB',
+    'specificationId': '0E59258B-B7AA-434F-877E-EFD37BE5930F',
+    'paymentTerms': 'RU00',
+    'surchargesPayment': '0',
+    'surchargesConversion': 0,
+    'payPercentBeforePlacingIntoProduction': 100,
+    'isDraft': True,
+    'isEndUserPQ': False,
+    'purchaseType': '121B015A-E76D-4688-9BB6-2A56EC6DE2EF',
+    'finalBuyerId': 'e55f3bae-ef45-43bd-b2f6-9f0148ca5622',
+    'customerId': 'acb8f425-c3b6-4b38-9f34-1e7fbfd53fa9',
+    'clientInn': '7705238125',
+    'autoAvailableForDistributor': None,
+    'debtorAccount': 'RT25-7705238125-HE',
+    'currencySpecialFixation': True,
+    'setContractDiscounts': True,
+    'isExport': False,
+    'validDays': 14,
+    'source': None,
+    'sellerId': '20C340FE-6AFF-486F-B248-FD8DBE2C93CD',
+    'IsATOffer': False,
+    'autoFromEngSpec': False,
+    'isNew': True,
+    'extendedWarranty': {'type': '0'},
+    'priceFixingCorridorValue': None,
+    'isEstimateOffer': False,
+    'offerType': None,
+    'regionsValidityAT': None,
+
+    # КРИТИЧНО: Полный объект deliveryOptionsDZRProd из вашего файла
+    'deliveryOptionsDZRProd_override': {
+        "ConsigneeCode": None,
+        "Condition": "RU",
+        "DeliveryCost": 0,
+        "ClientFinalDelivery": None,
+        "ConsigneeContacts": None,
+        "consigneeAgreementDelivery": {
+            "SourceFiasId": "00000000-0000-0000-0000-000000000000",
+            "Address": "",
+            "PaidDelivery": False,
+            "ConditionDescription": "Стандартные договорные условия",
+            "INN": "6167138751"  # ← ВАШЕ ЗНАЧЕНИЕ
+        },
+        "CostIncludedInOrder": False,
+        "totalDeliveryWeight": 40.85,  # ← Вес из Simulate
+        "endPoint": "ToTK",
+        "deliveryType": "PickupDZR",
+        "consigneeId": "00000000-0000-0000-0000-000000000000",
+        "deliverFullSetOnly": False
     }
+}
 }
 
 
@@ -166,7 +236,8 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
                 OfferFlowHelper.prepare_delivery_options(offer_payload, delivery_key, config)
 
                 exclude_fields = {'simulate_payload', 'delivery_options_key', 'line_type',
-                                  'quantity_increase', 'discount_percent', 'description'}
+                  'quantity_increase', 'discount_percent', 'description', 'isDraft',
+                  'deliveryOptionsDZRProd_override'}
 
                 OfferFlowHelper.add_config_fields_to_payload(offer_payload, config, exclude_fields)
 
@@ -215,6 +286,23 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             order_lines = OfferFlowHelper.update_order_lines_with_odid(order_lines, full_resp)
             print(f"Updated order lines with ODID: {order_lines}")
 
+            # Проверка полей после CreateOffer
+            with allure.step("Проверка полей после CreateOffer → FullCommerceNew"):
+                # Критичная проверка lineType - в тесте явно, т.к. это баг который мы нашли
+                line_type_data = OfferFlowHelper.extract_line_type_data(saved_offer_payload, full_resp)
+
+                with allure.step(f" КРИТИЧНО: lineType должен быть '{line_type_data['expected']}'"):
+                    print(f"\n  Ожидаем lineType: '{line_type_data['expected']}'")
+                    print(f"  Получили lineType: '{line_type_data['actual']}'")
+
+                    assert line_type_data['actual'] == line_type_data['expected'], \
+                        f" КРИТИЧНЫЙ БАГ! lineType изменился с '{line_type_data['expected']}' на '{line_type_data['actual']}'"
+
+                    print(f"  lineType корректен: '{line_type_data['actual']}'")
+
+                # Все остальные стандартные поля - в хелпере (массовая проверка)
+                OfferFlowHelper.verify_fields_after_create_offer(saved_offer_payload, full_resp, config)
+
             # Извлекаем seller_id (для HR)
             details = OfferFlowHelper.extract_details_from_full_commerce(full_resp)
             original_seller_id = None
@@ -238,7 +326,7 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
         }
 
     @pytest.mark.stage
-    @pytest.mark.parametrize('config_key', ['Material', 'BTP'])
+    @pytest.mark.parametrize('config_key', ['Material', 'BTP', 'CleverHit'])
     def test_full_chain_with_update_offer(self, config_key):
         """
         Полный цикл теста с обновлением КП:

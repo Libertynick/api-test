@@ -171,11 +171,14 @@ class OfferFlowHelper:
         elif delivery_key == 'deliveryOptionsDZRProd':
             if "deliveryOptions" in payload:
                 payload.pop("deliveryOptions")
-
-            payload["deliveryOptionsDZRProd"] = dict(
-                PayloadsCreateOffer.delivery_options_dzr_prod_industrial
-            )
-
+            # Если в конфиге есть свой deliveryOptionsDZRProd - используем его
+            if 'deliveryOptionsDZRProd_override' in config:
+                payload["deliveryOptionsDZRProd"] = dict(config['deliveryOptionsDZRProd_override'])
+            else:
+                # Иначе используем стандартный шаблон для Industrial
+                payload["deliveryOptionsDZRProd"] = dict(
+                    PayloadsCreateOffer.delivery_options_dzr_prod_industrial
+                )
             project_obj = dict(PayloadsCreateOffer.project_object_industrial)
             project_obj["id"] = config.get('passportId')
             payload["projectObject"] = project_obj
@@ -265,3 +268,86 @@ class OfferFlowHelper:
         assert order_create_response["status"] == "Ok", \
             f"Order/Create status != Ok: {order_create_response}"
         assert order_create_response.get("objects"), "Order/Create: пустой objects"
+
+    @staticmethod
+    def verify_fields_after_create_offer(create_payload: Dict, full_response: Dict, config: Dict) -> None:
+        """
+        Проверяет стандартные поля после CreateOffer → FullCommerceNew.
+        Проверяет: materialCode, quantity, currency, debtorAccount, personId, INN, weight.
+        НЕ проверяет lineType - это критичное поле, проверяется в тесте отдельно!
+        """
+        print("\n" + "=" * 80)
+        print("ПРОВЕРКА СТАНДАРТНЫХ ПОЛЕЙ ПОСЛЕ CreateOffer → FullCommerceNew")
+        print("=" * 80)
+
+        full_data = full_response.get("objects", [{}])[0].get("data", [{}])[0]
+        details_list = full_response.get("objects", [{}])[0].get("details", [])
+        details = details_list[0] if details_list else {}
+        delivery_dzr = full_data.get("deliveryOptionsDZRProd", {})
+
+        # Проверка materialCode
+        expected_material = create_payload["orderLines"][0].get("materialCode")
+        actual_material = details.get("code") or details.get("materialCode")
+        print(f"\n materialCode: ожидаем '{expected_material}', получили '{actual_material}'")
+        assert actual_material == expected_material, \
+            f"materialCode не совпадает! Ожидали '{expected_material}', получили '{actual_material}'"
+
+        # Проверка quantity
+        expected_qty = create_payload["orderLines"][0].get("quantity")
+        actual_qty = details.get("qty")
+        print(f" quantity: ожидаем {expected_qty}, получили {actual_qty}")
+        assert actual_qty == expected_qty, \
+            f"quantity не совпадает! Ожидали {expected_qty}, получили {actual_qty}"
+
+        # Проверка currency
+        expected_currency = create_payload.get("currency")
+        actual_currency = full_data.get("currency")
+        print(f" currency: ожидаем '{expected_currency}', получили '{actual_currency}'")
+        assert actual_currency == expected_currency, \
+            f"currency не совпадает! Ожидали '{expected_currency}', получили '{actual_currency}'"
+
+        # Проверка debtorAccount
+        expected_debtor = create_payload.get("debtorAccount")
+        actual_debtor = full_data.get("debtorAccount")
+        print(f" debtorAccount: ожидаем '{expected_debtor}', получили '{actual_debtor}'")
+        assert actual_debtor == expected_debtor, \
+            f"debtorAccount не совпадает! Ожидали '{expected_debtor}', получили '{actual_debtor}'"
+
+        # Проверка personId
+        expected_person = create_payload.get("personId")
+        actual_person = full_data.get("creatorPersonId")
+        print(f" personId: ожидаем '{expected_person}', получили '{actual_person}'")
+        assert actual_person == expected_person, \
+            f"personId не совпадает! Ожидали '{expected_person}', получили '{actual_person}'"
+
+        # Проверка INN и веса (если есть deliveryOptionsDZRProd_override)
+        if "deliveryOptionsDZRProd_override" in config and delivery_dzr:
+            expected_inn = config["deliveryOptionsDZRProd_override"]["consigneeAgreementDelivery"]["INN"]
+            actual_inn = delivery_dzr.get("consigneeAgreementDelivery", {}).get("inn")
+            print(f" INN в deliveryOptions: ожидаем '{expected_inn}', получили '{actual_inn}'")
+            assert actual_inn == expected_inn, \
+                f"INN не совпадает! Ожидали '{expected_inn}', получили '{actual_inn}'"
+
+            expected_weight = config["deliveryOptionsDZRProd_override"]["totalDeliveryWeight"]
+            actual_weight = delivery_dzr.get("totalDeliveryWeight")
+            print(f" totalDeliveryWeight: ожидаем {expected_weight}, получили {actual_weight}")
+            assert actual_weight == expected_weight, \
+                f"totalDeliveryWeight не совпадает! Ожидали {expected_weight}, получили {actual_weight}"
+
+        print("\n Все стандартные поля корректны!")
+        print("=" * 80 + "\n")
+
+    @staticmethod
+    def extract_line_type_data(create_payload: Dict, full_response: Dict) -> Dict:
+        """
+        Извлекает lineType из CreateOffer и FullCommerceNew для сравнения.
+        Возвращает словарь с ожидаемым и фактическим значением.
+        ВАЖНО: Не делает assert - это критичное поле, проверяется в тесте отдельно!
+        """
+        details_list = full_response.get("objects", [{}])[0].get("details", [])
+        details = details_list[0] if details_list else {}
+
+        return {
+            'expected': create_payload["orderLines"][0].get("lineType"),
+            'actual': details.get("lineType")
+        }
