@@ -351,3 +351,83 @@ class OfferFlowHelper:
             'expected': create_payload["orderLines"][0].get("lineType"),
             'actual': details.get("lineType")
         }
+
+    @staticmethod
+    def verify_fields_after_update_offer(update_payload: Dict, full_response: Dict, config: Dict,
+                                         original_quantity: int, quantity_increase: int,
+                                         discount_percent: float) -> None:
+        """Проверяет поля после UpdateOffer → FullCommerceNew."""
+        print("\n" + "=" * 80)
+        print("ПРОВЕРКА ПОЛЕЙ ПОСЛЕ UpdateOffer → FullCommerceNew")
+        print("=" * 80)
+
+        full_data = full_response.get("objects", [{}])[0].get("data", [{}])[0]
+        details_list = full_response.get("objects", [{}])[0].get("details", [])
+        details = details_list[0] if details_list else {}
+        delivery_dzr = full_data.get("deliveryOptionsDZRProd", {})
+
+        # materialCode (не меняется)
+        expected_material = update_payload["orderLines"][0].get("materialCode")
+        actual_material = details.get("code") or details.get("materialCode")
+        print(f"\n materialCode: ожидаем '{expected_material}', получили '{actual_material}'")
+        assert actual_material == expected_material, \
+            f"materialCode не совпадает! Ожидали '{expected_material}', получили '{actual_material}'"
+
+        # quantity (изменился)
+        expected_qty = original_quantity + quantity_increase
+        actual_qty = details.get("qty")
+        print(f" quantity: ожидаем {expected_qty}, получили {actual_qty}")
+        assert actual_qty == expected_qty, \
+            f"quantity не совпадает! Ожидали {expected_qty}, получили {actual_qty}"
+
+        # discount (изменился)
+        actual_discount = details.get("clientDiscountPercent", 0)
+        print(f" discount: ожидаем {discount_percent}%, получили {actual_discount}%")
+        assert actual_discount == discount_percent, \
+            f"discount не совпадает! Ожидали {discount_percent}%, получили {actual_discount}%"
+
+        # currency (не меняется)
+        expected_currency = update_payload.get("currency")
+        actual_currency = full_data.get("currency")
+        print(f" currency: ожидаем '{expected_currency}', получили '{actual_currency}'")
+        assert actual_currency == expected_currency, \
+            f"currency не совпадает! Ожидали '{expected_currency}', получили '{actual_currency}'"
+
+        # debtorAccount (не меняется)
+        expected_debtor = update_payload.get("debtorAccount")
+        actual_debtor = full_data.get("debtorAccount")
+        print(f" debtorAccount: ожидаем '{expected_debtor}', получили '{actual_debtor}'")
+        assert actual_debtor == expected_debtor, \
+            f"debtorAccount не совпадает! Ожидали '{expected_debtor}', получили '{actual_debtor}'"
+
+        # personId (не меняется)
+        expected_person = update_payload.get("personId")
+        if expected_person:
+            actual_person = full_data.get("creatorPersonId")
+            print(f" personId: ожидаем '{expected_person}', получили '{actual_person}'")
+            assert actual_person == expected_person, \
+                f"personId не совпадает! Ожидали '{expected_person}', получили '{actual_person}'"
+
+        # lineType (КРИТИЧНО - не меняется!)
+        expected_line_type = update_payload["orderLines"][0].get("lineType")
+        actual_line_type = details.get("lineType")
+        print(f" lineType: ожидаем '{expected_line_type}', получили '{actual_line_type}'")
+        assert actual_line_type == expected_line_type, \
+            f" БАГ! lineType изменился с '{expected_line_type}' на '{actual_line_type}'"
+
+        # INN и weight (если есть, не меняются)
+        if "deliveryOptionsDZRProd_override" in config and delivery_dzr:
+            expected_inn = config["deliveryOptionsDZRProd_override"]["consigneeAgreementDelivery"]["INN"]
+            actual_inn = delivery_dzr.get("consigneeAgreementDelivery", {}).get("inn")
+            print(f" INN: ожидаем '{expected_inn}', получили '{actual_inn}'")
+            assert actual_inn == expected_inn, \
+                f"INN не совпадает! Ожидали '{expected_inn}', получили '{actual_inn}'"
+
+            expected_weight = config["deliveryOptionsDZRProd_override"]["totalDeliveryWeight"]
+            actual_weight = delivery_dzr.get("totalDeliveryWeight")
+            print(f" weight: ожидаем {expected_weight}, получили {actual_weight}")
+            assert actual_weight == expected_weight, \
+                f"weight не совпадает! Ожидали {expected_weight}, получили {actual_weight}"
+
+        print("\n Все поля после UpdateOffer корректны!")
+        print("=" * 80 + "\n")

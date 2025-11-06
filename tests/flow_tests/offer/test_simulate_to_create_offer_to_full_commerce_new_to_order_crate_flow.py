@@ -401,6 +401,17 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
             OfferFlowHelper.verify_quantity_update(details, original_quantity, quantity_increase)
             OfferFlowHelper.verify_discount_update(details, discount_percent)
 
+            # Проверка всех полей
+            with allure.step("Проверка всех полей после UpdateOffer → FullCommerceNew"):
+                OfferFlowHelper.verify_fields_after_update_offer(
+                    update_payload=update_payload,
+                    full_response=full_resp_after,
+                    config=config,
+                    original_quantity=original_quantity,
+                    quantity_increase=quantity_increase,
+                    discount_percent=discount_percent
+                )
+
             print(f"✓ Все изменения успешно применились!")
 
             order_lines_for_create = OfferFlowHelper.update_order_lines_with_odid(updated_order_lines, full_resp_after)
@@ -513,6 +524,17 @@ class TestSimulateOfferUpdateOfferFullOrderE2E:
 
             OfferFlowHelper.verify_quantity_update(details, original_quantity, quantity_increase)
             OfferFlowHelper.verify_discount_update(details, discount_percent)
+
+            # Проверка всех полей
+            with allure.step("Проверка всех полей после UpdateOffer → FullCommerceNew"):
+                OfferFlowHelper.verify_fields_after_update_offer(
+                    update_payload=update_payload,
+                    full_response=full_resp_after,
+                    config=config,
+                    original_quantity=original_quantity,
+                    quantity_increase=quantity_increase,
+                    discount_percent=discount_percent
+                )
 
             # Проверка seller_id для HR
             if config_key == 'HR' and original_seller_id:
