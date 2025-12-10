@@ -358,7 +358,7 @@ class PayloadsOrderSimulate:
         "offerId": None,
         "returnEndClientDiscount": False,
         "currency": "RUB",
-        "currencyDate": "2025-10-15T00:00:00",
+        #"currencyDate": "2025-10-15T00:00:00",
         "exchangeRateType": "YRU",
         "returnAutoPrice": False,
         "surchargesPayment": "0",

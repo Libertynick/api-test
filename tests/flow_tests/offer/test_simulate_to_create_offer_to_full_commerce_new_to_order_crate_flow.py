@@ -15,6 +15,9 @@ from api_testing_project.utils.offer_flow_helper import OfferFlowHelper
 
 
 # Конфигурация тестов для разных типов КП (материалов)
+true = True
+false = False
+null = None
 TEST_CONFIGS = {
     'Material': {
         'simulate_payload': PayloadsOrderSimulate.order_simulate_add_to_cart_material,
@@ -33,9 +36,9 @@ TEST_CONFIGS = {
         'discount_percent': 10,
         'description': 'BTP code - full flow with UpdateOffer',
         'personId': '1c26afd2-1d97-4b7f-92fb-dd21ed412eea',
-        'passportId': '4DBB2A44-D895-468D-A51F-AE98B9B3D487',
+        'passportId': '4dbb2a44-d895-468d-a51f-ae98b9b3d487',
         'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB',
-        'specificationId': '29CDC69A-1CBA-47CF-9F93-8DECBDAF3D9A',
+        'specificationId': '6d2eab69-1535-48cd-97c9-0eb388facaaa',
         'purchaseType': 'C8EC0EE8-FB5D-4AE1-A664-B2C46A914E46',
         'finalBuyerId': 'daa47b0f-8c66-42f9-a5df-44fae4ff18e8',
         'customerId': 'acb8f425-c3b6-4b38-9f34-1e7fbfd53fa9',
@@ -61,7 +64,7 @@ TEST_CONFIGS = {
         'userName': 'RUCO1845',
         'personId': 'b898f86a-6070-451b-9a14-47ba949c8cb8',
         'usePromoCurrency': False,
-        'opportunityId': 'CF0F3885-3CA5-409D-A270-5E82E6EFD02C',
+        #'opportunityId': 'CF0F3885-3CA5-409D-A270-5E82E6EFD02C',
         'paymentTerms': 'RU00',
         'surchargesPayment': '0',
         'surchargesConversion': 0,
@@ -87,8 +90,9 @@ TEST_CONFIGS = {
         'priceFixingCorridorValue': None,
         'isEstimateOffer': False,
         'offerType': None,
-        'passportId': '9abbcb6b-91ac-4d69-bbee-d0d0f583e18d',
-        'specificationId': 'ece5153c-fbbd-4b55-816e-e7dd035364ad',
+        'passportId': '4DBB2A44-D895-468D-A51F-AE98B9B3D487',
+        'specTypeId': '346A197D-F0D1-46E1-9922-C5386D05E3B6',
+        'specificationId': 'B8D6A054-3CAF-417F-8AB2-9FB1823452B7',
     },
 
     'HR': {
@@ -124,9 +128,9 @@ TEST_CONFIGS = {
     'userName': 'RIDANCORP\\RUCO3670',
     'personId': 'f8eaae4a-1309-4b24-95e8-3a092dc30067',
     'usePromoCurrency': True,
-    'passportId': '8BE18628-2E23-4650-A438-482484E0B64D',
+    'passportId': '4dbb2a44-d895-468d-a51f-ae98b9b3d487',
     'specTypeId': '02061701-51E6-402E-B18F-7BAE7A27F6FB',
-    'specificationId': '0E59258B-B7AA-434F-877E-EFD37BE5930F',
+    'specificationId': '6d2eab69-1535-48cd-97c9-0eb388facaaa',
     'paymentTerms': 'RU00',
     'surchargesPayment': '0',
     'surchargesConversion': 0,
@@ -154,7 +158,7 @@ TEST_CONFIGS = {
     'offerType': None,
     'regionsValidityAT': None,
 
-    # КРИТИЧНО: Полный объект deliveryOptionsDZRProd из вашего файла
+    # КРИТИЧНО: Полный объект deliveryOptionsDZRProd
     'deliveryOptionsDZRProd_override': {
         "ConsigneeCode": None,
         "Condition": "RU",
@@ -166,7 +170,7 @@ TEST_CONFIGS = {
             "Address": "",
             "PaidDelivery": False,
             "ConditionDescription": "Стандартные договорные условия",
-            "INN": "6167138751"  # ← ВАШЕ ЗНАЧЕНИЕ
+            "INN": "6167138751"
         },
         "CostIncludedInOrder": False,
         "totalDeliveryWeight": 40.85,  # ← Вес из Simulate
