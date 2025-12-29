@@ -34,8 +34,14 @@ class Endpoints:
     """api/Material/UpdateMaterials"""
     post_update_materials = f'{TestEnvironment.BASE_URL_DAPI}api/Material/UpdateMaterials'
 
+    """api/Material/FindAnalogs"""
+    post_find_analogs = f'{TestEnvironment.BASE_URL_DAPI}api/Material/FindAnalogs'
+
     """/api/Order/CreateDocumentRetry"""
     get_order_create_document_retry = f'{TestEnvironment.BASE_URL_DAPI}api/Order/CreateDocumentRetry'
 
     """/api/CrmRequest/RequestSave"""
     post_crm_request_request_save = f'{TestEnvironment.BASE_URL_DAPI}api/CrmRequest/RequestSave'
+
+    """/api/Offer/UpdateOrderInOneCrm"""
+    post_update_order_in_one_crm = f"{TestEnvironment.BASE_URL_DAPI}api/Offer/UpdateOrderInOneCrm"

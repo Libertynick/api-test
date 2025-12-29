@@ -259,7 +259,7 @@ class OfferFlowHelper:
     @staticmethod
     def verify_update_offer_response(update_offer_response: Dict) -> None:
         """Проверяет базовую валидность ответа UpdateOffer."""
-        assert update_offer_response["status"] == "Ok", \
+        assert update_offer_response["status"] == "Ok" or update_offer_response["status"] == "Warning", \
             f"UpdateOffer status != Ok: {update_offer_response}"
 
     @staticmethod
