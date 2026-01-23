@@ -29,3 +29,4 @@ class CustomerApi(BaseApi):
             print(f'URL GetCustomerByNumber  {get_url}')
             res_get = self.http_methods.get(url=get_url)
             return res_get
+

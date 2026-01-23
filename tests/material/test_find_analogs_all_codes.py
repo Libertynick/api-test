@@ -72,10 +72,10 @@ class TestFindAnalogs:
 
         # 9. Проверяем результат
         if errors:
-            print('\n❌ НАЙДЕНЫ ОШИБКИ:')
+            print('\n НАЙДЕНЫ ОШИБКИ:')
             for error in errors:
                 print(f'  - {error}')
             assert False, f'Найдено {len(errors)} несоответствий в кодах аналогов:\n' + '\n'.join(errors)
         else:
-            print('\n✓ Все коды аналогов совпадают с ожидаемыми!')
-            print(f'✓ Успешно проверено {len(actual_analogs)} пар код-аналог')
+            print('\n Все коды аналогов совпадают с ожидаемыми!')
+            print(f' Успешно проверено {len(actual_analogs)} пар код-аналог')

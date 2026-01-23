@@ -114,6 +114,7 @@ class TestOrderSimulateAddedCodesToCart:
 
         #  Прайс кода в базе всегда 1 уе, поэтому цена кода в рублях равна курсу
         price_code = round(currency, 2)
+        print(price_code, 'price_code+++++')
 
         expected_values_dict = {
             "sales_price": price_code,  # Ожидаемая Цена из каталога за штуку без НДС (прайс)

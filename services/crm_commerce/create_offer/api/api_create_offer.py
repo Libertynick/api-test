@@ -15,7 +15,7 @@ class ApiCreateOffer(BaseApi):
 
         return self.response_data
 
-    def create_offer(self, headers, request) -> tuple:
+    def create_offer(self, request: json, headers: dict[str, str] = None) -> tuple:
         """
         Создание КП через срм в статусе Черновик.
         Возвращает id созданного КП и его номер в кортеже
@@ -57,6 +57,15 @@ class ApiCreateOffer(BaseApi):
         """Получение поля number из объекта offers"""
         number = self.get_object_offers()[0].number
         return number
+
+    def get_all_number_from_object_offers(self) -> list[str]:
+        """Получение списка всех значений поля number из объекта offers"""
+        offers = self.get_object_offers()
+        number_list = []
+        for offer in offers:
+            number_list.append(offer.number)
+
+        return number_list
 
     def get_all_articles(self):
         """

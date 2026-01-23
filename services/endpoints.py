@@ -43,5 +43,21 @@ class Endpoints:
     """/api/CrmRequest/RequestSave"""
     post_crm_request_request_save = f'{TestEnvironment.BASE_URL_DAPI}api/CrmRequest/RequestSave'
 
+    """ /api/Customer/ReservationThresholdUpdate"""
+    post_reservation_threshold_update = f'{TestEnvironment.BASE_URL_DAPI}api/Customer/ReservationThresholdUpdate'
+
+    """/api/Customer/GetCalculationReservationThreshold"""
+    get_calculation_reservation_threshold = lambda self, contract_number: f'{TestEnvironment.BASE_URL_DAPI}api/Customer/GetCalculationReservationThreshold?contractNumber={contract_number}'
+
     """/api/Offer/UpdateOrderInOneCrm"""
     post_update_order_in_one_crm = f"{TestEnvironment.BASE_URL_DAPI}api/Offer/UpdateOrderInOneCrm"
+
+    """/api/CrmCommerce/CommerceList"""
+    post_commerce_list = f"{TestEnvironment.BASE_URL_DAPI}api/CrmCommerce/CommerceList"
+
+    """api/Material/FindAndFilter"""
+    post_find_and_filter = f'{TestEnvironment.BASE_URL_DAPI}api/Material/FindAndFilter'
+
+    """api/Material/GetMaterialDocument"""
+    get_material_document = lambda self, material_code, file_name: \
+        f'{TestEnvironment.BASE_URL_DAPI}api/Material/GetMaterialDocument?materialCode={material_code}&fileName={file_name}'
