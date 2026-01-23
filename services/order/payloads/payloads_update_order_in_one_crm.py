@@ -5,116 +5,103 @@ class PayloadsUpdateOrderInOneCrm:
     true = True
     null = None
 
-    # Базовый payload для обновления заказа в OneCrm
-    # ВАЖНО: Многие поля будут заполняться динамически из данных созданного заказа
-    # Дефолтные значения взяты из реального рабочего примера API
     update_order_basic = {
-        "completed": "1",  # "1" = выполнен
-        "deleted": "0",  # "0" = не удалён
-        "date": "string",  # Дата заказа - будет заполнена
-        "documentNumber": "string",  # Номер документа из Order/Create - будет заполнен
-        "contractNumber": "",  # Обязательное поле
-        "paymentTermsCode": "RU00",  # Из Order/Create
-        "headOffice": "",  # Обязательное поле
-        "partnerSAPID": "",  # Обязательное поле
-        "partnerINN": "",  # Обязательное поле
-        "partnerNamе": "",  # Обязательное поле (русская "е")
+        "Completed": "1",
+        "Deleted": "0",
+        "Date": "string",
+        "DocumentNumber": "string",
+        "ContractNumber": "",
+        "PaymentTermsCode": "RU00",
+        "HeadOffice": "",
+        "PartnerSAPID": "",
+        "PartnerINN": "",
+        "PartnerNamе": "",
 
-        # Организация (с пустым approvers согласно спецификации)
-        "organization": {
-            "contractorId": "19b59c30-cf60-4000-8fd0-30fc6821a301",  # Будет заполняться
-            "inn": "string",
-            "contractorName": "string",
-            "approvers": []  # Пустой массив (спецификация требует но реальный пример не использует)
+        "Organization": {
+            "ContractorId": "19b59c30-cf60-4000-8fd0-30fc6821a301",
+            "INN": "string",
+            "ContractorName": "string",
+            "Approvers": []
         },
 
-        "currency": "RUB",  # Из Order/Create
-        "totalAmount": 0,  # Будет рассчитываться
-        "warehouse": "0010 Склад Лешково ",  # Дефолт из реального примера
-        "taxIncluded": "0",  # "0" = НДС не включён в цену
-        "responsibleEngineer": "",  # Обязательное поле
-        "addlInfo": "",  # Обязательное поле
-        "completeDelivery": false,
-        "status": "К выполнению / В резерве",  # Дефолт из реального примера
-        "prepayAmountToCollect": 0,
-        "prepayAmountToDelivery": 0,
-        "deliveryDate": "",  # Обязательное поле
-        "deliveryAddress": "",  # Обязательное поле
-        "taxType": "Продажа облагается НДС",  # Дефолт из реального примера
-        "delayedDeliveryDiscountValue": 0,
-        "deliveryCost": 0,
-        "discountsCalculated": "1",  # "1" = скидки рассчитаны
-        "engineerComment": "test_update_order_in_one_crm",  # Комментарий для теста
-        "clientComment": "string",
-        "referenceNumber": "Z0000052452",  # Из Order/Create
-        "quotationNumber": "string",
-        "consignee": "",  # Обязательное поле
-        "consigneeSAPID": "",  # Обязательное поле
-        "consigneeName": "",  # Обязательное поле
-        "salesDepartmentName": "",  # Обязательное поле
-        "salesDepartmentCode": "",  # Обязательное поле
-        "author": "0000612383",  # authorNumber из Order/Create
-        "deliveryType": "Pickup",  # Из deliveryOptions
-        "deliveryPartner": "",  # Обязательное поле
-        "deliveryAddressValue": "",  # Обязательное поле
-        "deliveryAddlInfo": "",  # Обязательное поле
-        "contactPerson": "",  # Обязательное поле
-        "salesGroup": "RU1",  # Из Order/Create
-        "paidInCurrency": "0",  # "0" = оплата не в валюте
-        "governmentContract": "",  # Согласно спецификации API
+        "Currency": "RUB",
+        "TotalAmount": 0,
+        "Warehouse": "0010 Склад Лешково ",
+        "TaxIncluded": "0",
+        "ResponsibleEngineer": "",
+        "AddlInfo": "",
+        "CompleteDelivery": false,
+        "Status": "К выполнению / В резерве",
+        "PrepayAmountToCollect": 0,
+        "PrepayAmountToDelivery": 0,
+        "DeliveryDate": "",
+        "DeliveryAddress": "",
+        "TaxType": "Продажа облагается НДС",
+        "DelayedDeliveryDiscountValue": 0,
+        "DeliveryCost": 0,
+        "DiscountsCalculated": "1",
+        "EngineerComment": "test_update_order_in_one_crm",
+        "ReferenceNumber": "Z0000052452",
+        "ReferenceDate": "",
+        "QuotationNumber": "string",
+        "Consignee": "",
+        "ConsigneeSAPID": "",
+        "ConsigneeName": "",
+        "SalesDepartmentName": "",
+        "SalesDepartmentCode": "",
+        "Author": "0000612383",
+        "DeliveryType": "Pickup",
+        "DeliveryPartner": "",
+        "DeliveryAddressValue": "",
+        "DeliveryAddlInfo": "",
+        "ContactPerson": "",
+        "SalesGroup": "RU1",
+        "PaidInCurrency": "0",
 
-        # Массив материалов
-        "materials": [
+        "Materials": [
             {
-                "lineNo": 1,
-                "deliveryDate": "",  # Будет заполнена датой
-                "odid": "19b59c30-cf70-4000-8a50-792e49739201",
-                "materialNumber": "003L0144R",
-                "materialName": "string",
-                "packType": "шт",  # Тип упаковки
-                "packsAmount": 25,  # Количество упаковок
-                "amountInWareUnits": 25,
-                "itemQuantityInCollection": 0,
-                "collectionQuantity": 0,
-                "priceCondition": "",  # Из реального примера
-                "price": 0,
-                "amount": 0,
-                "tax": "20%",  # Ставка НДС
-                "taxAmount": 0,
-                "amountWithTax": 0,
-                "discountPercent": 0,
-                "discountAmount": 0,
-                "autoDiscountPercent": 0,
-                "cancelReason": "",
-                "code": 1,  # Код позиции
-                "cancelled": "0",
-                "relationshipKey": 0,  # Из реального примера
-                "description": "string",
-                "warehouse": "",
-                "deliveryDays": 0,  # Из реального примера
-                "supplyType": "Отгрузить",
-                "collectionTypeNumber": "",
-                "collectionTypeName": "",
-                "salesDepartmentName": "",  # Из реального примера
-                "salesDepartmentCode": "",  # Из реального примера
-                "stock": 0,  # Складские остатки
-                "reservation": 0,
-                "onStock": 0,
-                "transit": []  # Будет заполнен
+                "LineNo": 1,
+                "DeliveryDate": "",
+                "ODID": "19b59c30-cf70-4000-8a50-792e49739201",
+                "MaterialNumber": "003L0144R",
+                "MaterialName": "string",
+                "PackType": "шт",
+                "PacksAmount": 25,
+                "AmountInWareUnits": 25,
+                "ItemQuantityInCollection": 0,
+                "CollectionQuantity": 0,
+                "PriceCondition": "",
+                "Price": 0,
+                "Amount": 0,
+                "Tax": "20%",
+                "TaxAmount": 0,
+                "AmountWithTax": 0,
+                "DiscountPercent": 0,
+                "DiscountAmount": 0,
+                "AutoDiscountPercent": 0,
+                "CancelReason": "",
+                "Code": 1,
+                "Cancelled": "0",
+                "RelationshipKey": 0,
+                "Description": "string",
+                "Warehouse": "0010 Склад Лешково ",
+                "DeliveryDays": 0,
+                "SupplyType": "Отгрузить",
+                "CollectionTypeNumber": "",
+                "CollectionTypeName": "",
+                "SalesDepartmentName": "",
+                "SalesDepartmentCode": "",
+                "Stock": 0,
+                "Reservation": 0,
+                "OnStock": 0,
+                "Transit": []
             }
         ],
 
-        # График платежей (будет пустым если нет данных)
-        "stagesSchedulePayment": [],
-
-        "completeDeliveryFrom": "1970-01-01T00:00:00.000Z",
-
-        # Платное хранение (будет пустым если нет данных)
-        "paidStorage": [],
-
-        # Ошибки (будет пустым если нет ошибок)
-        "errors": [],
-
-        "currentStatus": "Готов к отгрузке",  # Дефолт из реального примера
-        "paymentPercent": 0
+        "StagesSchedulePayment": [],
+        "CompleteDeliveryFrom": "1970-01-01T00:00:00.000Z",
+        "PaidStorage": [],
+        "Errors": [],
+        "CurrentStatus": "Готов к отгрузке",
+        "PaymentPercent": 0
     }

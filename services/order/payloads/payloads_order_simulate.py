@@ -93,7 +93,7 @@ class PayloadsOrderSimulate:
         "debtorAccount": "RT25-7705238125-HE",
         "materials": [
             {
-                "materialCode": "065B2931R",
+                "materialCode": "065B2979R",
                 "quantity": 7,
                 "lineNumber": 0,
                 "odid": null
@@ -114,7 +114,7 @@ class PayloadsOrderSimulate:
         "debtorAccount": "RT25-7705238125-HE",
         "materials": [
             {
-                "materialCode": "BQ1512230012-1",
+                "materialCode": "BAST3011254401",
                 "quantity": 11,
                 "lineNumber": 0,
                 "odid": null
@@ -324,7 +324,7 @@ class PayloadsOrderSimulate:
         "debtorAccount": "RT25-7705238125-HE",
         "materials": [
             {
-                "materialCode": "N2202248348-1",
+                "materialCode": "N2811259199-1",
                 "quantity": 2,
                 "lineNumber": 0,
                 "odid": null
